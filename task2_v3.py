@@ -14,13 +14,9 @@ def current_path(profit, quarantine, day, current_city):
             memo[d][city] = profit[d - 1][city]
     return memo
 
-def best_itinerary(profit, quarantine_time, home):
-    days = len(profit)
+def first_approach(possible_path, days, quarantine_time):
     cities = len(quarantine_time)
-    possible_path = current_path(profit, quarantine_time, 0, home)
     memo_1 = [[0] * cities for _ in range(days + 1)]
-    print(possible_path)
-    # current_city = home
     for day in range(1, days + 1):
         for city in range(cities):
             current_profit = possible_path[day][city]
@@ -42,8 +38,109 @@ def best_itinerary(profit, quarantine_time, home):
                     left = memo_1[travel_days][city - 1] + current_profit
                     right = memo_1[travel_days][city + 1] + current_profit
                 memo_1[day][city] = max(stay, left, right)
-    print(memo_1)
-    return max(memo_1[-1])
+    print("Memo1: " + str(memo_1))
+    return memo_1
+
+def second_approach(possible_path, days, quarantine_time):
+    cities = len(quarantine_time)
+    memo = [[0] * cities for _ in range(days + 1)]
+    for day in range(1, days + 1):
+        for city in range(cities):
+            current_profit = possible_path[day][city]
+            stay = memo[day - 1][city] + current_profit
+            travel_days = day - quarantine_time[city] - 2
+            c, ls = 0, []
+            while c < cities: # TODO: fix this complexity
+                if c != city and travel_days - abs(city - c) + 1 >= 0:
+                    ls.append(memo[travel_days - abs(city - c) + 1][c] + current_profit)
+                else:
+                    ls.append(stay)
+                c += 1
+            memo[day][city] = max(ls)
+    # print("Memo2: " + str(memo))
+    return memo
+    
+def third_approach(possible_path, days, quarantine_time, home):
+    cities = len(quarantine_time)
+    memo = [[0] * cities for _ in range(days + 1)]
+    memo[1][home] = possible_path[1][home]
+    for day in range(2, days + 1):
+        current_profit = max(memo[day - 1])
+        if current_profit != 0:
+            current_city = memo[day - 1].index(current_profit)
+        ls = []
+        for city in range(cities):
+            # stay = memo[day - 1][city] + current_profit
+            travel_days = abs(current_city - city) + quarantine_time[city] if current_city != city else 0
+            if day + travel_days <= days:
+                ls.append(possible_path[day + travel_days][city])
+            else:
+                ls.append(0)
+        max_profit = max(ls)
+        max_city = ls.index(max_profit) if ls[current_city] != max_profit else current_city
+        travel_days = abs(current_city - max_city) + quarantine_time[max_city] if current_city != max_city else 0
+        memo[day + travel_days][max_city] = memo[day + travel_days][max_city] + current_profit + max_profit
+    print(memo)
+    return memo
+
+def forth_approach(possible_path, days, quarantine_time, home):
+    cities = len(quarantine_time)
+    memo_1 = [[0] * cities for _ in range(days + 1)]
+    current_city = home
+    for day in range(1, days + 1):
+        
+        for city in range(cities):
+            current_profit = possible_path[day][city]
+            stay = memo_1[day - 1][city] + current_profit
+            travel_days = day - quarantine_time[city] - 2
+            if city == 0 : # first city
+                if travel_days >= 0:
+                    memo_1[day][city] = max(memo_1[day][city], stay, memo_1[travel_days][city + 1] + current_profit)
+                else:
+                    memo_1[day][city] = stay
+            elif city == cities - 1: # last city
+                if travel_days >= 0:
+                    memo_1[day][city] = max(memo_1[day][city], stay, memo_1[travel_days][city - 1] + current_profit)
+                else:
+                    memo_1[day][city] = stay
+            else:
+                left, right = 0, 0
+                if travel_days >= 0:
+                    left = memo_1[travel_days][city - 1] + current_profit
+                    right = memo_1[travel_days][city + 1] + current_profit
+                memo_1[day][city] = max(memo_1[day][city], stay, left, right)
+                
+        current_profit = max(memo_1[day - 1])
+        if current_profit != 0:
+            current_city = memo_1[day - 1].index(current_profit)
+        ls = []
+        for city in range(cities):
+            travel_days = abs(current_city - city) + quarantine_time[city] if current_city != city else 0
+            if day + travel_days <= days:
+                ls.append(possible_path[day + travel_days][city])
+            else:
+                ls.append(0)
+        max_profit = max(ls)
+        max_city = ls.index(max_profit) if ls[current_city] != max_profit else current_city
+        travel_days = abs(current_city - max_city) + quarantine_time[max_city] if current_city != max_city else 0
+        memo_1[day + travel_days][max_city] = max(memo_1[day + travel_days][max_city], current_profit + max_profit)
+
+    print("Memo3: " + str(memo_1))
+    return memo_1
+
+def best_itinerary(profit, quarantine_time, home):
+    days = len(profit)
+    cities = len(quarantine_time)
+    possible_path = current_path(profit, quarantine_time, 0, home)
+    # memo_1 = [[0] * cities for _ in range(days + 1)]
+    # print(possible_path)
+    if cities == 1:
+        return sum([inner for i in profit for inner in i])
+    # memo_1 = first_approach(possible_path, days, quarantine_time)
+    # memo_2 = second_approach(possible_path, days, quarantine_time)
+    memo_3 = forth_approach(possible_path, days, quarantine_time, home)
+    return max(memo_3[-1])
+    # return max(max(memo_1[-1]), max(memo_2[-1]))
 
 
 profit = [
@@ -68,3 +165,20 @@ print(best_itinerary([[2, 2, 9, 2, 4], [9, 3, 6, 5, 7], [9, 2, 4, 9, 7], [5, 2, 
 # print(best_itinerary([[2, 2, 9, 2, 4], [9, 3, 6, 5, 7], [9, 2, 4, 9, 7], [5, 2, 10, 2, 3], [1, 8, 2, 7, 8], [2, 9, 2, 2, 7], [9, 6, 1, 10, 1], [10, 9, 6, 7, 6], [9, 10, 1, 8, 6], [8, 4, 1, 7, 3], [5, 2, 5, 4, 7], [5, 5, 9, 8, 3], [3, 4, 1, 6, 9], [7, 6, 9, 6, 5], [9, 2, 6, 6, 4], [1, 5, 6, 4, 3], [2, 7, 7, 5, 7], [8, 2, 7, 4, 8], [3, 8, 9, 4, 4], [9, 9, 10, 9, 8]],[2, 2, 1, 1, 1],2)==119)
 # print(best_itinerary([[2, 2, 9, 2, 4], [9, 3, 6, 5, 7], [9, 2, 4, 9, 7], [5, 2, 10, 2, 3], [1, 8, 2, 7, 8], [2, 9, 2, 2, 7], [9, 6, 1, 10, 1], [10, 9, 6, 7, 6], [9, 10, 1, 8, 6], [8, 4, 1, 7, 3], [5, 2, 5, 4, 7], [5, 5, 9, 8, 3], [3, 4, 1, 6, 9], [7, 6, 9, 6, 5], [9, 2, 6, 6, 4], [1, 5, 6, 4, 3], [2, 7, 7, 5, 7], [8, 2, 7, 4, 8], [3, 8, 9, 4, 4], [9, 9, 10, 9, 8]],[2, 2, 1, 1, 1],3)==117)
 # print(best_itinerary([[2, 2, 9, 2, 4], [9, 3, 6, 5, 7], [9, 2, 4, 9, 7], [5, 2, 10, 2, 3], [1, 8, 2, 7, 8], [2, 9, 2, 2, 7], [9, 6, 1, 10, 1], [10, 9, 6, 7, 6], [9, 10, 1, 8, 6], [8, 4, 1, 7, 3], [5, 2, 5, 4, 7], [5, 5, 9, 8, 3], [3, 4, 1, 6, 9], [7, 6, 9, 6, 5], [9, 2, 6, 6, 4], [1, 5, 6, 4, 3], [2, 7, 7, 5, 7], [8, 2, 7, 4, 8], [3, 8, 9, 4, 4], [9, 9, 10, 9, 8]],[2, 2, 1, 1, 1],4)==111)
+
+# Long travel Jotham
+profits = [ [9, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 6, 0],
+            [0, 0, 0, 5, 0]]
+home = 0
+quarantine = [2, 2, 2, 2, 2]
+expected = 20
+# result = best_itinerary(profits, quarantine, home)
+# print(result == expected)
+
+

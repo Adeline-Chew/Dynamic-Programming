@@ -52,7 +52,7 @@ def binary_search(lst, current_index):
             hi = mid - 1
     return False, 0
 
-def another_binary(lst, cur_index):
+def binary_search(lst, cur_index):
     current_start_time = lst[cur_index][0]
     lo = 0
     hi = cur_index - 1

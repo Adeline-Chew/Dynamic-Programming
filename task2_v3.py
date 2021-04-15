@@ -117,15 +117,16 @@ def forth_approach(possible_path, days, quarantine_time, home):
         for city in range(cities):
             travel_days = abs(current_city - city) + quarantine_time[city] if current_city != city else 0
             if day + travel_days <= days:
-                ls.append(possible_path[day + travel_days][city])
-            else:
-                ls.append(0)
-        max_profit = max(ls)
-        max_city = ls.index(max_profit) if ls[current_city] != max_profit else current_city
-        travel_days = abs(current_city - max_city) + quarantine_time[max_city] if current_city != max_city else 0
-        memo_1[day + travel_days][max_city] = max(memo_1[day + travel_days][max_city], current_profit + max_profit)
+                memo_1[day + travel_days][city] = max(memo_1[day + travel_days][city], current_profit + possible_path[day + travel_days][city])
+                # ls.append(possible_path[day + travel_days][city])
+            # else:
+            #     ls.append(0)
+        # max_profit = max(ls)
+        # max_city = ls.index(max_profit) if ls[current_city] != max_profit else current_city
+        # travel_days = abs(current_city - max_city) + quarantine_time[max_city] if current_city != max_city else 0
+        # memo_1[day + travel_days][max_city] = max(memo_1[day + travel_days][max_city], current_profit + max_profit)
 
-    print("Memo3: " + str(memo_1))
+    # print("Memo3: " + str(memo_1))
     return memo_1
 
 def best_itinerary(profit, quarantine_time, home):
@@ -160,7 +161,7 @@ quarantine_time = [3, 1, 1, 1, 1]
 # print(best_itinerary(profit, quarantine_time, 3) == 57)
 # print(best_itinerary(profit, quarantine_time, 4) == 51)  
 
-print(best_itinerary([[2, 2, 9, 2, 4], [9, 3, 6, 5, 7], [9, 2, 4, 9, 7], [5, 2, 10, 2, 3], [1, 8, 2, 7, 8], [2, 9, 2, 2, 7], [9, 6, 1, 10, 1], [10, 9, 6, 7, 6], [9, 10, 1, 8, 6], [8, 4, 1, 7, 3], [5, 2, 5, 4, 7], [5, 5, 9, 8, 3], [3, 4, 1, 6, 9], [7, 6, 9, 6, 5], [9, 2, 6, 6, 4], [1, 5, 6, 4, 3], [2, 7, 7, 5, 7], [8, 2, 7, 4, 8], [3, 8, 9, 4, 4], [9, 9, 10, 9, 8]],[2, 2, 1, 1, 1],0)==118)
+# print(best_itinerary([[2, 2, 9, 2, 4], [9, 3, 6, 5, 7], [9, 2, 4, 9, 7], [5, 2, 10, 2, 3], [1, 8, 2, 7, 8], [2, 9, 2, 2, 7], [9, 6, 1, 10, 1], [10, 9, 6, 7, 6], [9, 10, 1, 8, 6], [8, 4, 1, 7, 3], [5, 2, 5, 4, 7], [5, 5, 9, 8, 3], [3, 4, 1, 6, 9], [7, 6, 9, 6, 5], [9, 2, 6, 6, 4], [1, 5, 6, 4, 3], [2, 7, 7, 5, 7], [8, 2, 7, 4, 8], [3, 8, 9, 4, 4], [9, 9, 10, 9, 8]],[2, 2, 1, 1, 1],0)==118)
 # print(best_itinerary([[2, 2, 9, 2, 4], [9, 3, 6, 5, 7], [9, 2, 4, 9, 7], [5, 2, 10, 2, 3], [1, 8, 2, 7, 8], [2, 9, 2, 2, 7], [9, 6, 1, 10, 1], [10, 9, 6, 7, 6], [9, 10, 1, 8, 6], [8, 4, 1, 7, 3], [5, 2, 5, 4, 7], [5, 5, 9, 8, 3], [3, 4, 1, 6, 9], [7, 6, 9, 6, 5], [9, 2, 6, 6, 4], [1, 5, 6, 4, 3], [2, 7, 7, 5, 7], [8, 2, 7, 4, 8], [3, 8, 9, 4, 4], [9, 9, 10, 9, 8]],[2, 2, 1, 1, 1],1)==115)
 # print(best_itinerary([[2, 2, 9, 2, 4], [9, 3, 6, 5, 7], [9, 2, 4, 9, 7], [5, 2, 10, 2, 3], [1, 8, 2, 7, 8], [2, 9, 2, 2, 7], [9, 6, 1, 10, 1], [10, 9, 6, 7, 6], [9, 10, 1, 8, 6], [8, 4, 1, 7, 3], [5, 2, 5, 4, 7], [5, 5, 9, 8, 3], [3, 4, 1, 6, 9], [7, 6, 9, 6, 5], [9, 2, 6, 6, 4], [1, 5, 6, 4, 3], [2, 7, 7, 5, 7], [8, 2, 7, 4, 8], [3, 8, 9, 4, 4], [9, 9, 10, 9, 8]],[2, 2, 1, 1, 1],2)==119)
 # print(best_itinerary([[2, 2, 9, 2, 4], [9, 3, 6, 5, 7], [9, 2, 4, 9, 7], [5, 2, 10, 2, 3], [1, 8, 2, 7, 8], [2, 9, 2, 2, 7], [9, 6, 1, 10, 1], [10, 9, 6, 7, 6], [9, 10, 1, 8, 6], [8, 4, 1, 7, 3], [5, 2, 5, 4, 7], [5, 5, 9, 8, 3], [3, 4, 1, 6, 9], [7, 6, 9, 6, 5], [9, 2, 6, 6, 4], [1, 5, 6, 4, 3], [2, 7, 7, 5, 7], [8, 2, 7, 4, 8], [3, 8, 9, 4, 4], [9, 9, 10, 9, 8]],[2, 2, 1, 1, 1],3)==117)
@@ -181,4 +182,7 @@ expected = 20
 # result = best_itinerary(profits, quarantine, home)
 # print(result == expected)
 
-
+profit = [[17, 6, 9, 13, 15, 19, 16], [17, 7, 1, 2, 2, 14, 4], [6, 6, 14, 12, 1, 13, 12], [11, 11, 6, 19, 12, 3, 4], [4, 17, 18, 16, 18, 16, 7], [6, 16, 2, 9, 17, 12, 19], [9, 10, 3, 13, 17, 3, 17], [11, 8, 13, 15, 4, 12, 19], [2, 6, 1, 8, 2, 1, 3], [11, 1, 14, 7, 9, 19, 11], [10, 9, 8, 8, 7, 2, 8], [18, 17, 2, 2, 11, 8, 14], [8, 11, 5, 2, 18, 12, 17], [6, 6, 15, 10, 4, 7, 18], [19, 2, 19, 12, 10, 6, 13], [12, 4, 14, 13, 2, 13, 18]]
+quarantine_time = [5, 5, 18, 3, 1, 11, 1]
+home = 1
+print(best_itinerary(profit, quarantine_time, home))

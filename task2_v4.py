@@ -1,10 +1,10 @@
 import time
 def current_path(profit, quarantine, day, current_city):
-    memo = [[0] * len(quarantine) for _ in range(len(profit) + 1)]
+    memo = [[0] * len(quarantine) for _ in range(len(profit) + 2)]
     for city in range(len(quarantine)):
         travel_days = day + abs(current_city - city) + quarantine[city] if current_city != city else 0
-        for d in range(travel_days , len(profit) ):
-            memo[d + 1][city] = profit[d][city]
+        for d in range(travel_days + 1, len(profit) + 1):
+            memo[d][city] = profit[d - 1][city]
     return memo
 
 def aux(possible_path, days, cities, quarantine_time):
@@ -13,7 +13,7 @@ def aux(possible_path, days, cities, quarantine_time):
     no_qua_memo[-1] = possible_path[-1]
     for day in range(days - 1, -1, -1):
         for city in range(cities):
-            current_profit = possible_path[day][city]
+            current_profit = possible_path[day + 1][city]
             if city == 0: # leftmost city
                 stay_no_qua = no_qua_memo[day + 1][city] + current_profit
                 to_right = qua_memo[day + 1][city + 1]
@@ -22,7 +22,7 @@ def aux(possible_path, days, cities, quarantine_time):
                 stay_qua = no_qua_memo[day + quarantine_time[city]][city] if day + quarantine_time[city] < days else 0
                 qua_memo[day][city] = max(stay_qua, to_right)
                 
-            elif city == cities - 1:
+            elif city == cities - 1: # rightmost city
                 stay_no_qua = no_qua_memo[day + 1][city] + current_profit
                 to_left = qua_memo[day + 1][city - 1]
                 no_qua_memo[day][city] = max(stay_no_qua, to_left)
@@ -44,13 +44,9 @@ def best_itinerary(profit, quarantine_time, home):
     days = len(profit)
     cities = len(quarantine_time)
     possible_path = current_path(profit, quarantine_time, 0, home)
-    # print(possible_path)
-    no_qua_memo = [[0] * len(quarantine_time) for _ in range(len(profit) + 1)] # maybe change to -1
-    qua_memo = [[0] * len(quarantine_time) for _ in range(len(profit) + 1)]
     if cities == 1:
         return sum([inner for i in profit for inner in i])
     res = aux(possible_path, days, cities, quarantine_time)
-    # print(res)
     return res
     
 profit = [
@@ -87,4 +83,8 @@ home = 4
 profit = [[5, 3, 5, 3], [4, 8, 3, 7], [5, 5, 7, 3], [6, 1, 1, 5], [1, 2, 2, 3], [1, 5, 8, 5], [1, 5, 5, 4]]
 quarantine_time = [9, 1, 2, 5]
 home = 0
+# print(best_itinerary(profit, quarantine_time, home))
+profit = [[8, 2, 1], [7, 2, 3], [3, 4, 1], [2, 2, 9]]
+quarantine_time = [6, 2, 1]
+home = 1
 print(best_itinerary(profit, quarantine_time, home))
